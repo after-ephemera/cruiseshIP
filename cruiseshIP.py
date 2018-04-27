@@ -26,17 +26,17 @@ if currentIP == myIP:
   exit(0)
 
 
-me = 'ipNotifier'
-you = 'azjkjensen@gmail.com'
+sender = 'ipNotifier'
+receiver = 'email@email.com'
 
 msg = MIMEText('This device\'s IP Address may have changed. It is now %s' % myIP)
 msg['Subject'] = 'WARNING: Potential IP Address Change'
-msg['From'] = me
-msg['To'] = you
+msg['From'] = sender
+msg['To'] = receiver
 
 # Send the message via our own SMTP server.
 s = smtplib.SMTP('localhost')
 # s.send_message(msg)
-s.sendmail(me, [you], msg.as_string())
+s.sendmail(sender, [receiver], msg.as_string())
 cleanUp()
 s.quit()
