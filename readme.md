@@ -1,7 +1,7 @@
 # CruiseshIP
 
 **CruiseshIP** is a tool for monitoring your dynamic public IP address so you don't
-miss when it changes. It checks for a change each day and emails you if it has changed since the last check. Read about why I built it [here](http://jkjensen.me/)
+miss when it changes. It checks for a change each day and emails you if it has changed since the last check. Read about why I built it [here](http://jkjensen.me/).
 
 ### Setup
 
