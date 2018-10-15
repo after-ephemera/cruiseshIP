@@ -8,35 +8,41 @@ import smtplib
 from email.mime.text import MIMEText
 from urllib.request import urlopen
 from datetime import datetime
-
-''' Closes file descriptors '''
-def cleanUp:
-    currentIPFile.close()
-    logFile.close()
-
-logFile = open('log.txt', 'a')
-currentIPFile = open('currentip.txt')
-currentIP = currentIPFile.read()
-
-# Check if the IP Address has changed
-myIP = urlopen('http://icanhazip.com').read().decode('utf-8')
-if currentIP == myIP:
-  logFile.write('%s ; IP Addresses are the same. Exiting' % str(datetime.now()))
-  cleanUp()
-  exit(0)
+from pathlib import Path
 
 
-sender = 'ipNotifier'
-receiver = 'email@email.com'
+def validate_ip(ipFile):
+    ipFilePath = Path(ipFile)
 
-msg = MIMEText('This device\'s IP Address may have changed. It is now %s' % myIP)
-msg['Subject'] = 'WARNING: Potential IP Address Change'
-msg['From'] = sender
-msg['To'] = receiver
+    try:
+        with open(ipFilePath, 'r') as previousIpFile:
+            # TODO: Read last line here
+            previousIp = previousIpFile.readline().rstrip().split()[0]
+    except Exception as e:
+        print('Failed to open file')
 
-# Send the message via our own SMTP server.
-s = smtplib.SMTP('localhost')
-# s.send_message(msg)
-s.sendmail(sender, [receiver], msg.as_string())
-cleanUp()
-s.quit()
+    # Check if the IP Address has changed
+    myIP = urlopen('http://icanhazip.com').read().decode('utf-8').rstrip()
+    if not ipFilePath.is_file() or previousIp == myIP:
+        with open(ipFilePath, 'a') as previousIpFile:
+            previousIpFile.write(f'{myIP} {datetime.now()}\n')
+        return False
+    return True
+
+
+def notify_change(ip):
+    sender = 'ipNotifier'
+    receiver = 'email@email.com'
+
+    msg = MIMEText('This device\'s IP Address may '
+    'have changed. It is now %s' % ip)
+    msg['Subject'] = 'WARNING: Potential IP Address Change'
+    msg['From'] = sender
+    msg['To'] = receiver
+    with open('currentip.txt', 'a') as previousIpFile:
+        previousIpFile.write('{} {}\n'.format(ip, datetime.now()))
+
+    # Send the message via our own SMTP server.
+    # s = smtplib.SMTP('localhost')
+    # s.sendmail(sender, [receiver], msg.as_string())
+    # s.quit()
